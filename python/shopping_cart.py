@@ -1,7 +1,14 @@
 import math
 
 from model_objects import ProductQuantity, SpecialOfferType, Discount
+from enum import Enum
 
+discounts = {
+    SpecialOfferType.TEN_PERCENT_DISCOUNT: ["10%", ]
+}
+#          if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
+                    # discount = Discount(p, str(offer.argument) + "% off",
+                    #                     -quantity * unit_price * offer.argument / 100.0)
 
 class ShoppingCart:
 
@@ -27,43 +34,43 @@ class ShoppingCart:
         else:
             self._product_quantities[product] = quantity
 
-    def handle_offers(self, receipt, offers, catalog):
-        for p in self._product_quantities.keys():
-            quantity = self._product_quantities[p]
-            if p in offers.keys():
-                offer = offers[p]
-                unit_price = catalog.unit_price(p)
+    def create_discount_objects_factory(self, receipt, offers, catalog, quantity, product):
+                offer = offers[product]
+                unit_price = catalog.unit_price(product)
                 quantity_as_int = int(quantity)
                 discount = None
                 x = 1
-                if offer.offer_type == SpecialOfferType.THREE_FOR_TWO:
-                    x = 3
-
-                elif offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
+                if offer.offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
                     x = 2
                     if quantity_as_int >= 2:
                         total = offer.argument * (quantity_as_int / x) + quantity_as_int % 2 * unit_price
-                        discount_n = unit_price * quantity - total
-                        discount = Discount(p, "2 for " + str(offer.argument), -discount_n)
-
-                if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
-                    x = 5
+                        discount_amount = unit_price * quantity - total
+                        discount = Discount(product, "2 for " + str(offer.argument), -discount_amount)
 
                 number_of_x = math.floor(quantity_as_int / x)
                 if offer.offer_type == SpecialOfferType.THREE_FOR_TWO and quantity_as_int > 2:
+                    x = 3
                     discount_amount = quantity * unit_price - (
                                 (number_of_x * 2 * unit_price) + quantity_as_int % 3 * unit_price)
-                    discount = Discount(p, "3 for 2", -discount_amount)
+                    discount = Discount(product, "3 for 2", -discount_amount)
                 # doesn't look like argument is needed as parater we already know is ten percent off here also why are we dviving by 100
                 # maybe make  very small unit test for 10 percent discount see how it works
+                #all of them create a Discount object that takes three arguments so maybe use this somehow in value 
                 if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
-                    discount = Discount(p, str(offer.argument) + "% off",
+                    discount = Discount(product, str(offer.argument) + "% off",
                                         -quantity * unit_price * offer.argument / 100.0)
 
                 if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT and quantity_as_int >= 5:
+                    x = 5
                     discount_total = unit_price * quantity - (
                                 offer.argument * number_of_x + quantity_as_int % 5 * unit_price)
-                    discount = Discount(p, str(x) + " for " + str(offer.argument), -discount_total)
-
+                    discount = Discount(product, str(x) + " for " + str(offer.argument), -discount_total)
                 if discount:
                     receipt.add_discount(discount)
+       
+
+    def handle_offers(self, receipt, offers, catalog):
+        for product in self._product_quantities.keys():
+            quantity = self._product_quantities[product]
+            if product in offers.keys():
+                self.create_discount_objects_factory(receipt, offers, catalog, quantity, product)
