@@ -30,3 +30,20 @@ def test_ten_percent_discount():
     assert 1.99 == receipt_item.price
     assert 2.5 * 1.99 == pytest.approx(receipt_item.total_price, 0.01)
     assert 2.5 == receipt_item.quantity
+
+def test_ten_percent_discount_simplified():
+    catalog = FakeCatalog()
+    toothbrush = Product("toothbrush", ProductUnit.EACH)
+
+    catalog.add_product(toothbrush, 0.80) #ten percent of .80 is 8 cents so shoudl be 72 after htis
+
+
+    teller = Teller(catalog)
+    teller.add_special_offer(SpecialOfferType.TEN_PERCENT_DISCOUNT, toothbrush, 10.0)
+
+    cart = ShoppingCart()
+    cart.add_item_quantity(toothbrush, 1)
+
+    receipt = teller.checks_out_articles_from(cart)
+
+    assert 0.72 ==  pytest.approx(receipt.total_price(), 0.01)

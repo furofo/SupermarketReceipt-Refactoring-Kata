@@ -54,7 +54,8 @@ class ShoppingCart:
                     discount_amount = quantity * unit_price - (
                                 (number_of_x * 2 * unit_price) + quantity_as_int % 3 * unit_price)
                     discount = Discount(p, "3 for 2", -discount_amount)
-
+                # doesn't look like argument is needed as parater we already know is ten percent off here also why are we dviving by 100
+                # maybe make  very small unit test for 10 percent discount see how it works
                 if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
                     discount = Discount(p, str(offer.argument) + "% off",
                                         -quantity * unit_price * offer.argument / 100.0)

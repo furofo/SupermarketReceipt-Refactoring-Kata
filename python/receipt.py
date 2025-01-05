@@ -11,11 +11,12 @@ class Receipt:
     def __init__(self):
         self._items = []
         self._discounts = []
-
+   # doing two things here and adding discount to total why?
     def total_price(self):
         total = 0
         for item in self.items:
             total += item.total_price
+        #this for works if remove it, is that okay?
         for discount in self.discounts:
             total += discount.discount_amount
         return total
