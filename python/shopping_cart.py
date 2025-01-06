@@ -9,10 +9,15 @@ def ten_percent_discount(product, quantity, unit_price, offer, number_of_x = Non
     discount_amount = -quantity * unit_price * offer.argument / 100.0
     return Discount(product, f"{offer.argument}% off", discount_amount)
 
+#    offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.00)  # Example offer
+
 def five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int):
     if quantity_as_int >= 5:
-        discount_total = unit_price * quantity - (
-        offer.argument * number_of_x + quantity_as_int % 5 * unit_price)
+        five_for_amount_value = offer.argument
+        individual_item_cost_with_five_for_amount_discount_applied =  five_for_amount_value / 5
+        products_normal_cost = unit_price * quantity
+        products_discounted_cost = individual_item_cost_with_five_for_amount_discount_applied * quantity
+        discount_total = products_normal_cost - products_discounted_cost
         return Discount(product, "five for " + str(offer.argument), -discount_total)
     else:
         error_message = f"Error: Quantity of product {product} must be at least 5 to apply the discount."
