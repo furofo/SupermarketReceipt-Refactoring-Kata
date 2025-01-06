@@ -1,7 +1,7 @@
 import pytest
 
-from model_objects import Product, SpecialOfferType, ProductUnit
-from shopping_cart import ShoppingCart
+from model_objects import Product, SpecialOfferType, ProductUnit, Offer
+from shopping_cart import ShoppingCart, five_for_amount_discount
 from teller import Teller
 from tests.fake_catalog import FakeCatalog
 
@@ -47,3 +47,23 @@ def test_ten_percent_discount_simplified():
     receipt = teller.checks_out_articles_from(cart)
 
     assert 0.72 ==  pytest.approx(receipt.total_price(), 0.01)
+def test_less_than_5_five_for_amount_discount():
+    catalog = FakeCatalog()
+    toothbrush = Product("toothbrush", ProductUnit.EACH)
+    catalog.add_product(toothbrush, 0.80) #ten percent of .80 is 8 cents so shoudl be 72 after htis
+    cart = ShoppingCart()
+    cart.add_item_quantity(toothbrush, 1)
+ # Define the parameters for the discount function
+    product = toothbrush
+    quantity = 1
+    unit_price = 0.80
+    offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.00)  # Example offer
+    number_of_x = 1
+    quantity_as_int = 1
+
+    # Assert that ValueError is raised
+    with pytest.raises(ValueError) as excinfo:
+        five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int)
+
+    # Optionally, check the error message
+    assert str(excinfo.value) == f"Error: Quantity of product {product} must be at least 5 to apply the discount."

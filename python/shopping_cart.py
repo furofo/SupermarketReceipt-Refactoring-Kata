@@ -3,13 +3,33 @@ import math
 from model_objects import ProductQuantity, SpecialOfferType, Discount
 from enum import Enum
 
-discounts = {
-    SpecialOfferType.TEN_PERCENT_DISCOUNT: ["10%", ]
-}
-#          if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
-                    # discount = Discount(p, str(offer.argument) + "% off",
-                    #                     -quantity * unit_price * offer.argument / 100.0)
+#idea is to add special offer in dictionary and then method with these arguments that returns a discount object
 
+def ten_percent_discount(product, quantity, unit_price, offer, number_of_x = None, quantity_as_int = None):
+    discount_amount = -quantity * unit_price * offer.argument / 100.0
+    return Discount(product, f"{offer.argument}% off", discount_amount)
+
+def five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int):
+    if quantity_as_int >= 5:
+        discount_total = unit_price * quantity - (
+        offer.argument * number_of_x + quantity_as_int % 5 * unit_price)
+        return Discount(product, "five for " + str(offer.argument), -discount_total)
+    else:
+        error_message = f"Error: Quantity of product {product} must be at least 5 to apply the discount."
+        print(error_message)  # Print the error message
+        raise ValueError(error_message)
+
+def three_for_two_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int):
+    if quantity_as_int > 2:
+        discount_amount = quantity * unit_price - (
+                    (number_of_x * 2 * unit_price) + quantity_as_int % 3 * unit_price)
+        return Discount(product, "3 for 2", -discount_amount)    
+
+discounts = {
+    SpecialOfferType.TEN_PERCENT_DISCOUNT: ten_percent_discount,
+    SpecialOfferType.FIVE_FOR_AMOUNT: five_for_amount_discount,
+    SpecialOfferType.THREE_FOR_TWO: three_for_two_discount
+}
 class ShoppingCart:
 
     def __init__(self):
@@ -46,31 +66,17 @@ class ShoppingCart:
                         total = offer.argument * (quantity_as_int / x) + quantity_as_int % 2 * unit_price
                         discount_amount = unit_price * quantity - total
                         discount = Discount(product, "2 for " + str(offer.argument), -discount_amount)
-
-                number_of_x = math.floor(quantity_as_int / x)
-                if offer.offer_type == SpecialOfferType.THREE_FOR_TWO and quantity_as_int > 2:
-                    x = 3
-                    discount_amount = quantity * unit_price - (
-                                (number_of_x * 2 * unit_price) + quantity_as_int % 3 * unit_price)
-                    discount = Discount(product, "3 for 2", -discount_amount)
-                # doesn't look like argument is needed as parater we already know is ten percent off here also why are we dviving by 100
-                # maybe make  very small unit test for 10 percent discount see how it works
-                #all of them create a Discount object that takes three arguments so maybe use this somehow in value 
-                if offer.offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
-                    discount = Discount(product, str(offer.argument) + "% off",
-                                        -quantity * unit_price * offer.argument / 100.0)
-
-                if offer.offer_type == SpecialOfferType.FIVE_FOR_AMOUNT and quantity_as_int >= 5:
-                    x = 5
-                    discount_total = unit_price * quantity - (
-                                offer.argument * number_of_x + quantity_as_int % 5 * unit_price)
-                    discount = Discount(product, str(x) + " for " + str(offer.argument), -discount_total)
-                if discount:
-                    receipt.add_discount(discount)
+                number_of_x = x
+                if offer.offer_type in discounts:
+                    discount_function = discounts[offer.offer_type]
+                    discount = discount_function(product, quantity, unit_price, offer, number_of_x, quantity_as_int)
+                    return discount
        
 
     def handle_offers(self, receipt, offers, catalog):
         for product in self._product_quantities.keys():
-            quantity = self._product_quantities[product]
+            quantity_of_product = self._product_quantities[product]
             if product in offers.keys():
-                self.create_discount_objects_factory(receipt, offers, catalog, quantity, product)
+                discount = self.create_discount_objects_factory(receipt, offers, catalog, quantity_of_product, product)
+                if discount:
+                    receipt.add_discount(discount)
