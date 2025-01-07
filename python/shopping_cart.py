@@ -34,7 +34,11 @@ def three_for_two_discount(product, quantity, unit_price, offer, quantity_as_int
     if quantity_as_int > 2:
         discount_amount = quantity * unit_price - (
                     (2 * unit_price) + quantity_as_int % 3 * unit_price)
-        return Discount(product, "3 for 2", -discount_amount)    
+        return Discount(product, "3 for 2", -discount_amount)
+    else:
+        error_message = f"Error: Quantity of product {product} must be at least 3 to apply the discount."
+        print(error_message)  # Print the error message
+        raise ValueError(error_message) 
 
 discounts = {
     SpecialOfferType.TEN_PERCENT_DISCOUNT: ten_percent_discount,
