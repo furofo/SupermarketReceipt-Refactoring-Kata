@@ -1,7 +1,7 @@
 import pytest
 
 from model_objects import Product, SpecialOfferType, ProductUnit, Offer
-from shopping_cart import ShoppingCart, five_for_amount_discount
+from shopping_cart import ShoppingCart, five_for_amount_discount, three_for_two_discount
 from teller import Teller
 from tests.fake_catalog import FakeCatalog
 
@@ -48,55 +48,52 @@ def test_ten_percent_discount_simplified():
 
     assert 0.72 ==  pytest.approx(receipt.total_price(), 0.01)
 
+class TestThreeForTwoDiscount:
+  
+    def TestLessThanTwoDiscount(self):
+        toothbrush = Product("toothbrush", ProductUnit.EACH)
+        quantity = 1
+        # what if unit price is negative number ?
+        unit_price = 0.80
+        offer = Offer(SpecialOfferType.THREE_FOR_TWO, toothbrush, argument=3.00)
+        with pytest.raises(ValueError) as excinfo:
+            three_for_two_discount(toothbrush, quantity, unit_price, offer)
+            assert excinfo.value == f"Error: Quantity of product {toothbrush} must be at least 3 to apply the discount."
+
 class TestFiveForAmountDiscount:
     # what if goes over
     def test_less_than_five_quantity(self):
         toothbrush = Product("toothbrush", ProductUnit.EACH)
         # Define the parameters for the discount function
-        product = toothbrush
         quantity = 1
         unit_price = 0.80
         offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.00)
-        number_of_x = 1
-        quantity_as_int = 1
-
         # Assert that ValueError is raised
         with pytest.raises(ValueError) as excinfo:
-            five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int)
-            assert str(excinfo.value) == f"Error: Quantity of product {product} must be at least 5 to apply the discount."
+            five_for_amount_discount(toothbrush, quantity, unit_price, offer)
+            assert str(excinfo.value) == f"Error: Quantity of product {toothbrush} must be at least 5 to apply the discount."
 
     def test_five_quantity(self):
         toothbrush = Product("toothbrush", ProductUnit.EACH)
         # Define the parameters for the discount function
-        product = toothbrush
         quantity = 5
         unit_price = 0.80
         offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.00)
-        number_of_x = 1
-        quantity_as_int = 5
-        product = five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int)
-        assert product.discount_amount == -1.0
+        discount = five_for_amount_discount(toothbrush, quantity, unit_price, offer)
+        assert discount.discount_amount == -1.0
 
     def test_ten_quantity(self):
         toothbrush = Product("toothbrush", ProductUnit.EACH)
-        # Define the parameters for the discount function
-        product = toothbrush
         quantity = 10
         unit_price = 0.80
         offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.00)
-        number_of_x = 1
-        quantity_as_int = 10
-
-        product = five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int)
-        assert product.discount_amount == -2.0
+        discount = five_for_amount_discount(toothbrush, quantity, unit_price, offer)
+        assert discount.discount_amount == -2.0
     
     def test_twenty_seven_quantity(self):
         toothbrush = Product("toothbrush", ProductUnit.EACH)
-        product = toothbrush
         quantity = 27
         unit_price = 0.80
         offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.0)
-        number_of_x = 1
-        quantity_as_int = 27
-        product = five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int)
-        assert product.discount_amount == -5
+        discount = five_for_amount_discount(toothbrush, quantity, unit_price, offer)
+        assert discount.discount_amount == -5

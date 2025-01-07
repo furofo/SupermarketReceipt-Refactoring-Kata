@@ -11,8 +11,8 @@ def ten_percent_discount(product, quantity, unit_price, offer, quantity_as_int =
 
 #    offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.00)  # Example offer
 
-def five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int):
-    if quantity_as_int >= 5:
+def five_for_amount_discount(product, quantity, unit_price, offer):
+    if quantity >= 5:
         five_for_amount_value = offer.argument
         individual_item_cost_with_five_for_amount_discount_applied =  five_for_amount_value / 5
         products_normal_cost = unit_price * quantity
@@ -30,11 +30,19 @@ def five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_i
         print(error_message)  # Print the error message
         raise ValueError(error_message)
 
-def three_for_two_discount(product, quantity, unit_price, offer, quantity_as_int):
-    if quantity_as_int > 2:
-        discount_amount = quantity * unit_price - (
-                    (2 * unit_price) + quantity_as_int % 3 * unit_price)
-        return Discount(product, "3 for 2", -discount_amount)
+def three_for_two_discount(product, quantity, unit_price, offer):
+    if quantity > 2:
+        five_for_amount_value = offer.argument
+        individual_item_cost_with_three_for_two_discount_applied =  five_for_amount_value / 5
+        products_normal_cost = unit_price * quantity
+        remainder_of_quantity_divide_by_two = quantity % 2
+        products_discounted_cost = (
+            (individual_item_cost_with_three_for_two_discount_applied * 
+            (quantity - remainder_of_quantity_divide_by_two)) +
+            (remainder_of_quantity_divide_by_two * unit_price)
+        )
+        discount_total = products_normal_cost - products_discounted_cost
+        return Discount(product, "3 for 2", -discount_total)
     else:
         error_message = f"Error: Quantity of product {product} must be at least 3 to apply the discount."
         print(error_message)  # Print the error message
@@ -81,7 +89,7 @@ class ShoppingCart:
                         discount = Discount(product, "2 for " + str(offer.argument), -discount_amount)
                 if offer.offer_type in discounts:
                     discount_function = discounts[offer.offer_type]
-                    discount = discount_function(product, quantity, unit_price, offer, quantity_as_int)
+                    discount = discount_function(product, quantity, unit_price, offer)
                     return discount
        
 
