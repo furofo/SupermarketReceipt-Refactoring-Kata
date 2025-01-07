@@ -62,7 +62,7 @@ class TestFiveForAmountDiscount:
 
         # Assert that ValueError is raised
         with pytest.raises(ValueError) as excinfo:
-            five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int)
+            five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int)
             assert str(excinfo.value) == f"Error: Quantity of product {product} must be at least 5 to apply the discount."
 
     def test_five_quantity(self):
@@ -74,7 +74,7 @@ class TestFiveForAmountDiscount:
         offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.00)
         number_of_x = 1
         quantity_as_int = 5
-        product = five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int)
+        product = five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int)
         assert product.discount_amount == -1.0
 
     def test_ten_quantity(self):
@@ -87,7 +87,7 @@ class TestFiveForAmountDiscount:
         number_of_x = 1
         quantity_as_int = 10
 
-        product = five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int)
+        product = five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int)
         assert product.discount_amount == -2.0
     
     def test_twenty_seven_quantity(self):
@@ -98,5 +98,5 @@ class TestFiveForAmountDiscount:
         offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.0)
         number_of_x = 1
         quantity_as_int = 27
-        product = five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int)
+        product = five_for_amount_discount(product, quantity, unit_price, offer, quantity_as_int)
         assert product.discount_amount == -5
