@@ -16,8 +16,14 @@ def five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, 
         five_for_amount_value = offer.argument
         individual_item_cost_with_five_for_amount_discount_applied =  five_for_amount_value / 5
         products_normal_cost = unit_price * quantity
-        products_discounted_cost = individual_item_cost_with_five_for_amount_discount_applied * quantity
+        remainder_of_quantity_divide_by_five = quantity % 5
+        products_discounted_cost = (
+            (individual_item_cost_with_five_for_amount_discount_applied * 
+            (quantity - remainder_of_quantity_divide_by_five)) +
+            (remainder_of_quantity_divide_by_five * unit_price)
+        )
         discount_total = products_normal_cost - products_discounted_cost
+
         return Discount(product, "five for " + str(offer.argument), -discount_total)
     else:
         error_message = f"Error: Quantity of product {product} must be at least 5 to apply the discount."

@@ -49,6 +49,7 @@ def test_ten_percent_discount_simplified():
     assert 0.72 ==  pytest.approx(receipt.total_price(), 0.01)
 
 class TestFiveForAmountDiscount:
+    # what if goes over
     def test_less_than_five_quantity(self):
         catalog = FakeCatalog()
         toothbrush = Product("toothbrush", ProductUnit.EACH)
@@ -106,3 +107,24 @@ class TestFiveForAmountDiscount:
 
         product = five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int)
         assert product.discount_amount == -2.0
+    
+    def test_twenty_seven_quantity(self):
+        catalog = FakeCatalog()
+        toothbrush = Product("toothbrush", ProductUnit.EACH)
+        catalog.add_product(toothbrush, 0.80)
+        cart = ShoppingCart()
+        cart.add_item_quantity(toothbrush, 27)
+        #without disocunt 21.6
+        #with discount 16.6
+        #21.6
+        #16.2
+        # Define the parameters for the discount function
+        product = toothbrush
+        quantity = 27
+        unit_price = 0.80
+        offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.0)
+        number_of_x = 1
+        quantity_as_int = 27
+
+        product = five_for_amount_discount(product, quantity, unit_price, offer, number_of_x, quantity_as_int)
+        assert product.discount_amount == -5
