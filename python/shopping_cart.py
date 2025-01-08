@@ -26,11 +26,14 @@ def five_for_amount_discount(product, quantity, unit_price, offer):
 
         return Discount(product, "five for " + str(offer.argument), -discount_total)
     else:
-        error_message = f"Error: Quantity of product {product} must be at least 5 to apply the discount."
+        error_message = f"Error: Quantity of product {product.name} must be at least 5 to apply the discount."
         print(error_message)  # Print the error message
         raise ValueError(error_message)
 
 def three_for_two_discount(product, quantity, unit_price, offer):
+    if unit_price < 0:
+        error_message = f"Error: Unit price cannot be less than <= 0"
+        raise ValueError(error_message) 
     if quantity > 2:
         five_for_amount_value = offer.argument
         individual_item_cost_with_three_for_two_discount_applied =  five_for_amount_value / 5
@@ -44,7 +47,7 @@ def three_for_two_discount(product, quantity, unit_price, offer):
         discount_total = products_normal_cost - products_discounted_cost
         return Discount(product, "3 for 2", -discount_total)
     else:
-        error_message = f"Error: Quantity of product {product} must be at least 3 to apply the discount."
+        error_message = f"Error: Quantity of product {product.name} must be at least 3 to apply the discount."
         print(error_message)  # Print the error message
         raise ValueError(error_message) 
 

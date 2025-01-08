@@ -49,8 +49,16 @@ def test_ten_percent_discount_simplified():
     assert 0.72 ==  pytest.approx(receipt.total_price(), 0.01)
 
 class TestThreeForTwoDiscount:
-  
-    def TestLessThanTwoDiscount(self):
+    def test_negative_price(self):
+        toothbrush = Product("toothbrush", ProductUnit.EACH)
+        quantity = 1
+        unit_price = -10
+        offer = Offer(SpecialOfferType.THREE_FOR_TWO, toothbrush, argument=3.00)
+        with pytest.raises(ValueError) as excinfo:
+            three_for_two_discount(toothbrush, quantity, unit_price, offer)
+        assert str(excinfo.value) == f"Error: Unit price cannot be less than <= 0"
+
+    def test_less_than_two_discount(self):
         toothbrush = Product("toothbrush", ProductUnit.EACH)
         quantity = 1
         # what if unit price is negative number ?
@@ -58,7 +66,8 @@ class TestThreeForTwoDiscount:
         offer = Offer(SpecialOfferType.THREE_FOR_TWO, toothbrush, argument=3.00)
         with pytest.raises(ValueError) as excinfo:
             three_for_two_discount(toothbrush, quantity, unit_price, offer)
-            assert excinfo.value == f"Error: Quantity of product {toothbrush} must be at least 3 to apply the discount."
+        assert str(excinfo.value) == f"Error: Quantity of product {toothbrush.name} must be at least 3 to apply the discount."
+
 
 class TestFiveForAmountDiscount:
     # what if goes over
@@ -71,7 +80,7 @@ class TestFiveForAmountDiscount:
         # Assert that ValueError is raised
         with pytest.raises(ValueError) as excinfo:
             five_for_amount_discount(toothbrush, quantity, unit_price, offer)
-            assert str(excinfo.value) == f"Error: Quantity of product {toothbrush} must be at least 5 to apply the discount."
+            assert str(excinfo.value) == f"Error: Quantity of product {toothbrush.name} must be at least 5 to apply the discount."
 
     def test_five_quantity(self):
         toothbrush = Product("toothbrush", ProductUnit.EACH)
