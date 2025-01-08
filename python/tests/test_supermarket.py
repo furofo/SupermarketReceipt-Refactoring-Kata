@@ -70,14 +70,12 @@ class TestThreeForTwoDiscount:
 
 
 class TestFiveForAmountDiscount:
-    # what if goes over
+
     def test_less_than_five_quantity(self):
         toothbrush = Product("toothbrush", ProductUnit.EACH)
-        # Define the parameters for the discount function
         quantity = 1
         unit_price = 0.80
         offer = Offer(SpecialOfferType.FIVE_FOR_AMOUNT, toothbrush, argument=3.00)
-        # Assert that ValueError is raised
         with pytest.raises(ValueError) as excinfo:
             five_for_amount_discount(toothbrush, quantity, unit_price, offer)
             assert str(excinfo.value) == f"Error: Quantity of product {toothbrush.name} must be at least 5 to apply the discount."
